@@ -1,39 +1,55 @@
 // this is (mostly) stolen from https://js6450.github.io/sound-p5-part3.html
 // original author: Jiwon Shin (http://jiwonshin.com/)
-let osc;
-let playing = false;
-let frequency;
+let osc
+let playing = false
+let frequency
+let scalingFactor = 1e5
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight)
 
-    osc = new p5.Oscillator();
-    osc.amp(0);
-    osc.start();
-    noStroke();
+    osc = new p5.Oscillator()
+    osc.amp(0)
+    osc.start()
+    noStroke()
+    textSize(20)
 }
 
 function draw() {
     if (playing == true) {
-        background(0, 30);
-        fill(255);
+        background(101, 148, 105)
+        fill(0,70)
 
-        frequency = map(mouseX, 0, width, -30, 20000);
+        frequency = map(mouseX, 0, width, -50, 20000)
 
-        osc.freq(frequency);
-        ellipse(mouseX, height / 2, 100, 100);
-        text("Frekvens: " + frequency + " Hz", width-200, height-20)
+        osc.freq(frequency)
+        ellipse(mouseX, height / 2, 100, 100)
+        text("Frekvens: " + floor(frequency) + " Hz", width-200, height-20)
+        drawSine()
     } else {
-        background(255);
+        background(255)
     }
+}
+
+function drawSine() {
+  push()
+  noFill()
+  stroke(0, 70)
+  beginShape()
+  for (let x = 0; x <= width; x++) {
+    let y = 4/5 * height + height/10 * sin(frequency / scalingFactor * x)
+    vertex(x,y)
+  }
+  endShape()
+  pop()
 }
 
 function mousePressed() {
     if (playing == true) {
-        osc.amp(0);
-        playing = false;
+        osc.amp(0)
+        playing = false
     } else {
-        osc.amp(1);
-        playing = true;
+        osc.amp(1)
+        playing = true
     }
 }
