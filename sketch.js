@@ -27,7 +27,7 @@ function draw() {
         text("Frekvens: " + floor(frequency) + " Hz", width-200, height-20)
         drawSine()
     } else {
-        background(255)
+        background(140, 207, 146)
     }
 }
 
