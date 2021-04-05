@@ -1,7 +1,8 @@
 // this is (mostly) stolen from https://js6450.github.io/sound-p5-part3.html
 // original author: Jiwon Shin (http://jiwonshin.com/)
-var osc;
-var playing = false;
+let osc;
+let playing = false;
+let frequency;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
@@ -17,7 +18,7 @@ function draw() {
         background(0, 30);
         fill(255);
 
-        var frequency = map(mouseX, 0, width, -30, 20000);
+        frequency = map(mouseX, 0, width, -30, 20000);
 
         osc.freq(frequency);
         ellipse(mouseX, height / 2, 100, 100);
