@@ -20,7 +20,7 @@ function draw() {
         background(101, 148, 105)
         fill(0,70)
 
-        frequency = map(mouseX, 0, width, -50, 20000)
+        frequency = constrain(map(mouseX, 0, width, -50, 20000), 0, 2e4)
 
         osc.freq(frequency)
         ellipse(mouseX, height / 2, 100, 100)
