@@ -3,8 +3,8 @@
 let osc
 let playing = false
 let frequency
-let scalingFactor = 2e4
-let minFrequency = 20
+let scalingFactor = 10
+let minFrequency = 12
 
 function setup() {
     createCanvas(windowWidth, windowHeight)
@@ -40,7 +40,7 @@ function drawSine() {
   stroke(0, 70)
   beginShape()
   for (let x = 0; x <= width; x++) {
-    let y = 4/5 * height + height/10 * sin(frequency / scalingFactor * x)
+    let y = 4/5 * height + height/10 * sin(frequency / (width / TWO_PI) / scalingFactor * x)
     vertex(x,y)
   }
   endShape()
