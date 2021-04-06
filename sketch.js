@@ -1,5 +1,12 @@
-// this is (mostly) stolen from https://js6450.github.io/sound-p5-part3.html
+// A Sine Wave generator in p5.js. Written by Ståle Gjelsten
+// Hosted at: https://stalegjelsten.github.io/p5js-sine-generator/
+//
+//
+// the source code for this project is (mostly) stolen from 
+// https://js6450.github.io/sound-p5-part3.html and later it's been heavily
+// modified. 
 // original author: Jiwon Shin (http://jiwonshin.com/)
+
 let osc
 let playing = false
 let frequency
