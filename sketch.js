@@ -22,7 +22,7 @@ function setup() {
     let gui = new dat.GUI();
     gui.add(osc, "minFrequency", 1, 50, 1)
     gui.add(osc, "maxFrequency", 15e3, 30e3, 1e3)
-    gui.add(osc, "volume", 1, 10, .5)
+    gui.add(osc, "volume", 1, 10, .5).onChange(function(){osc.changeVol()})  
     gui.add(osc, "zoom", 1, 10, 1)
     gui.add(osc, "play")
     gui.add(osc, "pause")
@@ -88,6 +88,7 @@ class SineOscillator {
         this.playing = true
         this.started = true
     }
+
 
     // pausing the playback over 0.5 sec fade-out
     pause() {
