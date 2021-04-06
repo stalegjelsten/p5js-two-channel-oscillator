@@ -10,68 +10,97 @@
 let osc
 let playing = false
 let frequency
-let scalingFactor = 1
-let minFrequency = 12
-let slider
+
 
 function setup() {
-    createCanvas(windowWidth, windowHeight-30)
-    osc = new p5.Oscillator('sine')
+    createCanvas(windowWidth, windowHeight)
+    osc = new SineOscillator()
+    let gui = new dat.GUI();
 
-    createSpan("Juster definisjonsmengden: ")
-    slider = createSlider(1, 20, 1, 1)
+    gui.add(osc, "minFrequency", 1, 50, 1)
+    gui.add(osc, "maxFrequency", 15e3, 30e3, 1e3)
+    gui.add(osc, "volume", 1, 10, .5)
+    gui.add(osc, "zoom", 1, 10, 1)
+    gui.add(osc, "play")
+    gui.add(osc, "pause")
+    gui.close()
+
     noStroke()
     textSize(20)
 }
 
 function draw() {
-    fill(0,70)
-    if (playing == true) {
-        background(101, 148, 105)
-        textAlign(LEFT)
-        text("t = 0", 10, height-50)
-        
+    fill(0,80)
 
-        let logFrequency = constrain(map(mouseX, 0, width, 
-            log(minFrequency), log(20000)), log(minFrequency), 2e4)
-        frequency = exp(logFrequency)
+    background(101, 148, 105)
+    textAlign(LEFT)
+    text("t = 0", 10, height-50)
+    
 
-        osc.freq(frequency)
-        ellipse(mouseX, height / 2, 100, 100)
-        textAlign(RIGHT)
-        text("Frekvens: " + floor(frequency) + " Hz", width-10, height-20)
-        text("t = " + 1/scalingFactor + " sek", width-10, height-50)
-        drawSine()
-    } else {
-        background(127, 186, 132)
+    let logFrequency = constrain(map(mouseX, 0, width, log(osc.minFrequency),
+        log(osc.maxFrequency)), log(osc.minFrequency), log(osc.maxFrequency))
+    frequency = exp(logFrequency)
+
+    osc.p5osc.freq(frequency)
+    ellipse(mouseX, height / 2, 100, 100)
+    textAlign(RIGHT)
+    text("Frekvens: " + floor(frequency) + " Hz", width-10, height-20)
+    text("t = " + 1/osc.zoom + " sek", width-10, height-50)
+    osc.drawSine()
+}
+
+
+class SineOscillator {
+    constructor() {
+        this.p5osc = new p5.Oscillator("sine")
+        this.volume = 5
+        this.playing = false
+        this.started = false
+        this.zoom = 5
+        this.minFrequency = 12
+        this.maxFrequency = 20e3
     }
-    scalingFactor = slider.value()
-}
 
-function drawSine() {
-  push()
-  noFill()
-  stroke(0, 70)
-  beginShape()
-  for (let x = 0; x <= width; x++) {
-    let y = 4/5 * height + height/10 * sin(frequency / (width / TWO_PI) / scalingFactor * x)
-    vertex(x,y)
-  }
-  endShape()
-  pop()
-}
+    play() {
+        this.p5osc.start()
+        this.p5osc.amp(osc.volume/10, 0.5)
+        this.playing = true
+        this.started = true
+    }
 
-function playSine() {
-    if (playing == true) {
-        osc.amp(0, 0.5)
-        playing = false
-    } else {
-        osc.start()
-        osc.amp(1, 0.5)
-        playing = true
+    pause() {
+        this.p5osc.amp(osc.p5osc.amp(0, 0.5))
+        this.playing = false
+    }
+
+    drawSine() {
+        push()
+        noFill()
+        stroke(0, 80)
+        beginShape()
+        for (let x = 0; x <= width; x++) {
+            let y = 4/5 * height + (height/5 * this.volume / 10) * 
+                sin(frequency / (width / TWO_PI) / this.zoom * x)
+            vertex(x,y)
+        }
+        endShape()
+        pop()
     }
 }
 
-function mousePressed(){
-    playSine()
+
+function keyPressed() {
+    if (key == " ") {
+        if (osc.playing == true) {
+            osc.pause()
+        } else if (osc.playing == false) {
+            osc.play()
+        }
+    }
+}
+
+function mousePressed() {
+    if (osc.started == false) {
+        osc.play()
+    }
 }
