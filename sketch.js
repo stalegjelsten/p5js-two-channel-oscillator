@@ -3,7 +3,8 @@
 let osc
 let playing = false
 let frequency
-let scalingFactor = 1e5
+let scalingFactor = 2e4
+let minFrequency = 20
 
 function setup() {
     createCanvas(windowWidth, windowHeight)
@@ -20,7 +21,9 @@ function draw() {
         background(101, 148, 105)
         fill(0,70)
 
-        frequency = constrain(map(mouseX, 0, width, -50, 20000), 0, 2e4)
+        let logFrequency = constrain(map(mouseX, 0, width, 
+            log(minFrequency), log(20000)), log(minFrequency), 2e4)
+        frequency = exp(logFrequency)
 
         osc.freq(frequency)
         ellipse(mouseX, height / 2, 100, 100)
