@@ -3,23 +3,27 @@
 let osc
 let playing = false
 let frequency
-let scalingFactor = 10
+let scalingFactor = 1
 let minFrequency = 12
+let slider
 
 function setup() {
-    createCanvas(windowWidth, windowHeight)
+    createCanvas(windowWidth, windowHeight-30)
+    osc = new p5.Oscillator('sine')
 
-    osc = new p5.Oscillator()
-    osc.amp(0)
-    osc.start()
+    createSpan("Juster definisjonsmengden: ")
+    slider = createSlider(1, 20, 1, 1)
     noStroke()
     textSize(20)
 }
 
 function draw() {
+    fill(0,70)
     if (playing == true) {
         background(101, 148, 105)
-        fill(0,70)
+        textAlign(LEFT)
+        text("t = 0", 10, height-50)
+        
 
         let logFrequency = constrain(map(mouseX, 0, width, 
             log(minFrequency), log(20000)), log(minFrequency), 2e4)
@@ -27,11 +31,14 @@ function draw() {
 
         osc.freq(frequency)
         ellipse(mouseX, height / 2, 100, 100)
-        text("Frekvens: " + floor(frequency) + " Hz", width-200, height-20)
+        textAlign(RIGHT)
+        text("Frekvens: " + floor(frequency) + " Hz", width-10, height-20)
+        text("t = " + 1/scalingFactor + " sek", width-10, height-50)
         drawSine()
     } else {
         background(127, 186, 132)
     }
+    scalingFactor = slider.value()
 }
 
 function drawSine() {
@@ -47,13 +54,17 @@ function drawSine() {
   pop()
 }
 
-function mousePressed() {
+function playSine() {
     if (playing == true) {
-        osc.start()
-        osc.amp(0)
+        osc.amp(0, 0.5)
         playing = false
     } else {
-        osc.amp(1)
+        osc.start()
+        osc.amp(1, 0.5)
         playing = true
     }
+}
+
+function mousePressed(){
+    playSine()
 }
