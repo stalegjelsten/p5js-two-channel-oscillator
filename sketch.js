@@ -23,7 +23,7 @@ function setup() {
     gui.add(osc, "minFrequency", 1, 50, 1)
     gui.add(osc, "maxFrequency", 15e3, 30e3, 1e3)
     gui.add(osc, "volume", 1, 10, .5).onChange(function(){osc.changeVol()})  
-    gui.add(osc, "zoom", 1, 10, 1)
+    gui.add(osc, "zoom", 1, 10, 1).onChange(function(){osc.drawSine()})
     gui.add(osc, "play")
     gui.add(osc, "pause")
     gui.close()
@@ -38,6 +38,8 @@ function setup() {
 
 function draw() {
     background(101, 148, 105)
+    noStroke()
+    fill(0,80)
 
     textAlign(LEFT)
     text("t = 0 sek", 10, height-50)
@@ -45,13 +47,11 @@ function draw() {
     osc.setFrequency()
     osc.drawSine()
 
-    noStroke()
-    fill(0,80)
     ellipse(mouseX, height / 2, 100, 100)
 
     textAlign(RIGHT)
     text("Frekvens: " + floor(osc.frequency) + " Hz", width-10, height-20)
-    text("t = " + 1/osc.zoom + " sek", width-10, height-50)
+    text("t = " + (1/osc.zoom).toPrecision(2) + " sek", width-10, height-50)
 }
 
 
@@ -89,6 +89,9 @@ class SineOscillator {
         this.started = true
     }
 
+    changeVol() {
+        this.p5osc.amp(osc.volume/10, 0.2)
+    }
 
     // pausing the playback over 0.5 sec fade-out
     pause() {
@@ -134,5 +137,10 @@ function mousePressed() {
 
 // only draw the screen after mouse is moved (aka. frequency is changed)
 function mouseMoved() {
+    redraw()
+}
+
+// Trying to make the simulation more touch friendly :^)
+function touchMoved() {
     redraw()
 }
