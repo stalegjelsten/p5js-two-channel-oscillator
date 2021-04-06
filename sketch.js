@@ -49,6 +49,7 @@ function drawSine() {
 
 function mousePressed() {
     if (playing == true) {
+        osc.start()
         osc.amp(0)
         playing = false
     } else {
