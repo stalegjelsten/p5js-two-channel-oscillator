@@ -143,4 +143,7 @@ function mouseMoved() {
 // Trying to make the simulation more touch friendly :^)
 function touchMoved() {
     redraw()
+    if (osc.started == false) {
+        osc.play()
+    }
 }
