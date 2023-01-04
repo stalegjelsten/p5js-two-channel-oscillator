@@ -8,24 +8,26 @@
 // original author: Jiwon Shin (http://jiwonshin.com/)
 
 
-// initializing an oscillator object
-let osc
+// initializing two oscillator objects. Horizontal and vertical
+let oscH
+let oscV
 
 function setup() {
     createCanvas(windowWidth, windowHeight)
 
     // creating a new oscillator object wrapped in the SineOscillator class
-    osc = new SineOscillator()
+    oscH = new SineOscillator(-1.0)
+    oscV = new SineOscillator(1.0)
 
 
     // setting up the GUI control interface
     let gui = new dat.GUI();
-    gui.add(osc, "minFrequency", 1, 50, 1)
-    gui.add(osc, "maxFrequency", 15e3, 30e3, 1e3)
-    gui.add(osc, "volume", 1, 10, .5).onChange(function(){osc.changeVol()})  
-    gui.add(osc, "zoom", 1, 10, 1).onChange(function(){osc.drawSine()})
-    gui.add(osc, "play")
-    gui.add(osc, "pause")
+    gui.add(oscH, "minFrequency", 1, 50, 1)
+    gui.add(oscH, "maxFrequency", 200, 30e3, 100)
+    gui.add(oscV, "minFrequency", 1, 50, 1)
+    gui.add(oscV, "maxFrequency", 200, 30e3, 100)
+    // gui.add(oscH, "volume", 1, 10, .5).onChange(function(){oscH.changeVol()})  
+    // gui.add(oscH, "zoom", 1, 10, 1).onChange(function(){oscH.drawSine()})
     gui.close()
 
 
@@ -44,19 +46,25 @@ function draw() {
     textAlign(LEFT)
     text("t = 0 sek", 10, height-50)
     
-    osc.setFrequency()
-    osc.drawSine()
+    oscH.setFrequency()
+    oscH.drawSine()
+    oscV.setFrequency()
+    oscV.drawSine()
 
-    ellipse(mouseX, height / 2, 100, 100)
+    // oscV.setFrequency()
+    // oscV.drawSine()
+
+    ellipse(mouseX, mouseY, 100, 100)
 
     textAlign(RIGHT)
-    text("Frekvens: " + floor(osc.frequency) + " Hz", width-10, height-20)
-    text("t = " + (1/osc.zoom).toPrecision(2) + " sek", width-10, height-50)
+    text("Frekvens: " + floor(oscH.frequency) + " Hz", width-10, height-20)
+    text("Frekvens: " + floor(oscV.frequency) + " Hz", width/2+width/5, 20)
+    text("t = " + (1/oscH.zoom).toPrecision(2) + " sek", width-10, height-50)
 }
 
 
 class SineOscillator {
-    constructor() {
+    constructor(pan) {
         this.p5osc = new p5.Oscillator("sine")
         this.volume = 5
         this.playing = false
@@ -66,6 +74,7 @@ class SineOscillator {
         this.maxFrequency = 20e3
         this.lastFrequency = 0
         this.frequency = 12
+        this.pan = pan
     }
 
     // mapping the mouseX position relative to the window to the natural
@@ -74,8 +83,14 @@ class SineOscillator {
     // frequencies as humans are way better at differentiating between 
     // frequencies in the lower frequency range
     setFrequency() {
-        let logFrequency = constrain(map(mouseX, 0, width, log(osc.minFrequency),
-            log(osc.maxFrequency)), log(osc.minFrequency), log(osc.maxFrequency))
+        let mousedir = mouseX
+        let dimension = width
+        if (this.pan > 0) {
+            mousedir = mouseY
+            dimension = height
+        }
+        let logFrequency = constrain(map(mousedir, 0, dimension, log(this.minFrequency),
+            log(this.maxFrequency)), log(this.minFrequency), log(this.maxFrequency))
         this.frequency = exp(logFrequency)
         this.p5osc.freq(this.frequency)
     }
@@ -84,13 +99,14 @@ class SineOscillator {
     // is scaled by volume slider
     play() {
         this.p5osc.start()
-        this.p5osc.amp(osc.volume/10, 0.5)
+        this.p5osc.amp(this.volume/10, 0.5)
+        this.p5osc.pan(this.pan)
         this.playing = true
         this.started = true
     }
 
     changeVol() {
-        this.p5osc.amp(osc.volume/10, 0.2)
+        this.p5osc.amp(oscH.volume/10, 0.2)
     }
 
     // pausing the playback over 0.5 sec fade-out
@@ -105,10 +121,18 @@ class SineOscillator {
         noFill()
         stroke(0, 80)
         beginShape()
-        for (let x = 0; x <= width; x++) {
-            let y = 4/5 * height + (height/5 * this.volume / 10) * 
-                sin(this.frequency / (width / TWO_PI) / this.zoom * x)
-            vertex(x,y)
+        if (this.pan > 0) {
+            for (let y = 0; y <= height; y++) {
+                let x = 1/2 * width + (height/5 * this.volume / 10) * 
+                    sin(this.frequency / (height / TWO_PI) / this.zoom * y)
+                vertex(x,y)
+            }
+        } else {
+            for (let x = 0; x <= width; x++) {
+                let y = 4/5 * height + (height/5 * this.volume / 10) * 
+                    sin(this.frequency / (width / TWO_PI) / this.zoom * x)
+                vertex(x,y)
+            }
         }
         endShape()
         pop()
@@ -119,18 +143,21 @@ class SineOscillator {
 // play and pause by pressing spacebar
 function keyPressed() {
     if (key == " ") {
-        if (osc.playing == true) {
-            osc.pause()
-        } else if (osc.playing == false) {
-            osc.play()
+        if (oscH.playing == true) {
+            oscH.pause()
+            oscV.pause()
+        } else if (oscH.playing == false) {
+            oscH.play()
+            oscV.play()
         }
     }
 }
 
 // start the tone generator by first touch or mouse press
 function mousePressed() {
-    if (osc.started == false) {
-        osc.play()
+    if (oscH.started == false) {
+        oscH.play()
+        oscV.play()
     }
 }
 
